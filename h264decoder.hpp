@@ -18,7 +18,7 @@ class H264Decoder
   AVCodecParserContext  *parser;
   // In the documentation example on the github master branch, the packet is put on the heap.
   // In release 11 it is put on the stack, which is what we do here, too.
-  //AVPacket              *pkt;
+  AVPacket              *pkt;
   std::vector<unsigned char>  buffer;
 public:
   H264Decoder();

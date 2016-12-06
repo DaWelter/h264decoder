@@ -45,6 +45,11 @@ H264Decoder::H264Decoder()
   frame = av_frame_alloc();
   if (!frame)
     throw std::runtime_error("cannot allocate frame");
+  
+  pkt = new AVPacket;
+  if (!pkt)
+    throw std::runtime_error("cannot allocate packet");
+  av_init_packet(pkt);
 }
 
 
@@ -54,29 +59,33 @@ H264Decoder::~H264Decoder()
   avcodec_close(context);
   av_free(context);
   av_frame_free(&frame);
+  delete pkt;
 }
 
 
 const AVFrame* H264Decoder::next(const ubyte* in_data, ulong in_size)
 { 
-  AVPacket pkt_mem;
-  auto pkt = &pkt_mem; // might want to use heap allocated pointer later on ...
-  av_init_packet(pkt);  
- 
   buffer.insert(buffer.end(), in_data, in_data + in_size);
   
+  /* Points pkt->data to input buffer if input buffer contains a full frame. 
+     Otherwise a full frame is accumulated in a extra buffer behind the scenes. Then pkt->data is pointed to this. 
+     And the owner of the memory of pkt->data appears to be either the user of the lib or the "context" depending on which of the above cases we have.
+     Therefore, in order to store a packet for later, one would have to make a copy of pkt with appropriate API functions - with possible exception of manual copy of the buffer memory. 
+  */
   int nread = av_parser_parse2(parser, context, &pkt->data, &pkt->size, 
                                buffer.size() ? &buffer[0] : nullptr, buffer.size(), 
                                0, 0, AV_NOPTS_VALUE);
 
-  //printf("inserted %ld bytes in buffer of subsequent size %ld, of which %i bytes were consumed\n", in_size, buffer.size(), nread);
+  printf("inserted %ld bytes in buffer of subsequent size %ld, of which %i bytes were consumed\n", in_size, buffer.size(), nread);
+  printf("  pkt data    = %lx, size = %d\n", (std::size_t)pkt->data, pkt->size);
+  printf("  buffer data = %lx\n", (std::size_t)&buffer[0]);
   
   // I'm guestimating that 4 out of 5 times (nread == buffer.size())
   // There may be some optimization opportunity here.
   buffer.erase(buffer.begin(), buffer.begin() + nread);
   
   // size and buffer refer to a buffer with data of a new frame. But only if all data for that frame is present. Otherwise these vars are zeroed out. 
-  if (pkt->size && pkt->data)
+  if (pkt->size)
   {
     int got_picture = 0;
     
