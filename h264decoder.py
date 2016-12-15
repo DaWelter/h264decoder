@@ -13,11 +13,9 @@ decoder = libh264decoder.H264Decoder()
 fig, ax = pyplot.subplots(1,1)
 img = None
 
-f = open('testclip.h264','r')
-while 1:
-  data_in = f.read(1024)
-  frame, w, h, ls = decoder.decode(data_in)
-  
+def display(framedata):
+  global img, fig, ax
+  (frame, w, h, ls) = framedata
   if frame is not None:
     print 'frame size %i bytes, w %i, h %i, linesize %i' % (len(frame), w, h, ls)
     frame = np.fromstring(frame, dtype = np.ubyte, count = len(frame), sep = '')
@@ -31,6 +29,20 @@ while 1:
       img.set_data(frame)
       pyplot.draw()
     pyplot.pause(0.001)
-  
+
+
+f = open('testclip.h264','r')
+while 1:
+  data_in = f.read(1024)
   if not data_in:
     break
+  if 1:
+    while len(data_in):
+      framedata, nread = decoder.decode_frame(data_in)
+      data_in = data_in[nread:]
+      display(framedata)
+  else:
+    framedatas = decoder.decode(data_in)
+    for framedata in framedatas:
+      display(framedata)
+  
