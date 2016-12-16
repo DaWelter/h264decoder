@@ -1,8 +1,9 @@
 /* I'm such a bad script kiddie. This code is entirely based on roxlu's code http://roxlu.com/2014/039/decoding-h264-and-yuv420p-playback
-*/
+ * ...
+ * Well, not quite anymore.
+ */
 
 
-#include <vector>
 #include <stdexcept>
 
 extern "C" {
@@ -15,9 +16,8 @@ extern "C" {
 #include "h264decoder.hpp"
 
 typedef unsigned char ubyte;
-typedef unsigned long ulong;
 
-
+/* For backward compatibility with release 9 or so of libav */
 #if (LIBAVCODEC_VERSION_MAJOR <= 54) 
 #  define av_frame_alloc avcodec_alloc_frame
 #  define av_frame_free  avcodec_free_frame  
@@ -72,49 +72,8 @@ H264Decoder::~H264Decoder()
 #endif
 }
 
-#if 0
-const AVFrame* H264Decoder::next(const ubyte* in_data, ulong in_size)
-{ 
-  buffer.insert(buffer.end(), in_data, in_data + in_size);
-  
-  /* Points pkt->data to input buffer if input buffer contains a full frame. 
-     Otherwise a full frame is accumulated in a extra buffer behind the scenes. Then pkt->data is pointed to this. 
-     And the owner of the memory of pkt->data appears to be either the user of the lib or the "context" depending on which of the above cases we have.
-     Therefore, in order to store a packet for later, one would have to make a copy of pkt with appropriate API functions - with possible exception of manual copy of the buffer memory. 
-  */
-  int nread = av_parser_parse2(parser, context, &pkt->data, &pkt->size, 
-                               buffer.size() ? &buffer[0] : nullptr, buffer.size(), 
-                               0, 0, AV_NOPTS_VALUE);
 
-  printf("inserted %ld bytes in buffer of subsequent size %ld, of which %i bytes were consumed\n", in_size, buffer.size(), nread);
-  printf("  pkt data    = %lx, size = %d\n", (std::size_t)pkt->data, pkt->size);
-  printf("  buffer data = %lx\n", (std::size_t)&buffer[0]);
-  
-  // I'm guestimating that 4 out of 5 times (nread == buffer.size())
-  // There may be some optimization opportunity here.
-  buffer.erase(buffer.begin(), buffer.begin() + nread);
-  
-  // size and buffer refer to a buffer with data of a new frame. But only if all data for that frame is present. Otherwise these vars are zeroed out. 
-  if (pkt->size)
-  {
-    int got_picture = 0;
-    
-    nread = avcodec_decode_video2(context, frame, &got_picture, pkt);
-    if (nread < 0)
-      throw std::runtime_error("error decoding frame\n");
-    
-    if (got_picture)
-    {
-      return frame;
-    }
-  }
-  
-  return nullptr;
-}
-#endif
-
-
-ulong H264Decoder::parse(const ubyte* in_data, ulong in_size)
+ssize_t H264Decoder::parse(const ubyte* in_data, ssize_t in_size)
 {
   auto nread = av_parser_parse2(parser, context, &pkt->data, &pkt->size, 
                                 in_data, in_size, 
@@ -178,8 +137,6 @@ const AVFrame& ConverterRGB24::convert(const AVFrame &frame, ubyte* out_rgb)
 }
 
 /*
- Returns, given a width and height, how many bytes the frame buffer is going to need.
-
  * WARNING:
  * avpicture_get_size is used in http://dranger.com/ffmpeg/tutorial01.html 
  * to determine the size of the output frame buffer. However, avpicture_get_size returns

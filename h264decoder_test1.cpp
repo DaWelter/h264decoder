@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <stdexcept>
+#include <vector>
 
 extern "C" {
   #include <libavcodec/avcodec.h>
