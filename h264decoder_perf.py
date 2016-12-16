@@ -12,13 +12,18 @@ decoder = libh264decoder.H264Decoder()
 t0 = time.time()
 num_frames = 0
 
-def conv(frame):
-  frame = np.fromstring(frame, dtype = np.ubyte, count = len(frame), sep = '') # this conversion drops fps from 200 to 150
-  frame = frame.reshape((h, ls/3, 3))
-  frame = frame[:,:w,:]
+if 1:
+  def conv(frame):
+    frame = np.fromstring(frame, dtype = np.ubyte, count = len(frame), sep = '') # this conversion drops fps from 200 to 150
+    frame = frame.reshape((h, ls/3, 3))
+    frame = frame[:,:w,:]
+else:
+  def conv(frame):
+    pass
 
 f = open('testclip.h264','r')
-while 0:
+# Original way is 60 fps on laptop, this way is 100 fps
+while 1:
   data_in = f.read(1024)
   if not data_in:
     break
@@ -26,7 +31,8 @@ while 0:
   for frame, w, h, ls in framelist:
     conv(frame)
     num_frames += 1
-while 1:
+# On laptop this way is 80 fps.
+while 0:
   data_in = f.read(1024)
   if not data_in:
     break
