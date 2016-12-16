@@ -35,34 +35,36 @@ public:
 
 py::tuple PyH264Decoder::decode_frame_impl(const ubyte *data_in, int len, int &num_consumed, bool &is_frame_available)
 {
-  const AVFrame* frame = nullptr;
+  // see https://docs.python.org/2/c-api/init.html (Releasing the GIL ...)  
+  PyThreadState *_save = PyEval_SaveThread();  // allow the python interpreter to run other other threads than the current one.
   
-  // see https://docs.python.org/2/c-api/init.html (Releasing the GIL ...)
-  Py_BEGIN_ALLOW_THREADS  // allow the python interpreter to run other other threads than the current one.
   num_consumed = decoder.parse((ubyte*)data_in, len);
+  
   if (is_frame_available = decoder.is_frame_available())
   {
-    frame = &decoder.decode_frame();
-  }
-  Py_END_ALLOW_THREADS
-  
-  if (is_frame_available)  // new frame decoded?
-  {
-    int w, h; std::tie(w,h) = width_height(*frame);
+    const auto &frame = decoder.decode_frame();
+    int w, h; std::tie(w,h) = width_height(frame);
+    
+    PyEval_RestoreThread(_save);
+    
     // we hold the GIL, so we can safely allocate a python object
     Py_ssize_t out_size = converter.predict_size(w,h);
     py::object py_out_str(py::handle<>(PyString_FromStringAndSize(NULL, out_size)));
     char* out_buffer = PyString_AsString(py_out_str.ptr());
-  
-    const AVFrame* rgbframe = nullptr;
-    Py_BEGIN_ALLOW_THREADS // allow other python threads again while the conversion runs
-    rgbframe = &converter.convert(*frame, (ubyte*)out_buffer);
-    Py_END_ALLOW_THREADS
+    // allow other python threads again while the conversion runs
     
-    return py::make_tuple(py_out_str, w, h, row_size(*rgbframe));
+    _save = PyEval_SaveThread(); 
+    const auto &rgbframe = converter.convert(frame, (ubyte*)out_buffer);
+    PyEval_RestoreThread(_save);
+    
+    return py::make_tuple(py_out_str, w, h, row_size(rgbframe));
   }
   else
+  {
+    PyEval_RestoreThread(_save);
+    
     return py::make_tuple(py::object(), 0, 0, 0);
+  }
 }
 
 
