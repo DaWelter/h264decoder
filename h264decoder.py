@@ -8,10 +8,9 @@ import libh264decoder
 
 import matplotlib.pyplot as pyplot
 
-decoder = libh264decoder.H264Decoder()
 
-fig, ax = pyplot.subplots(1,1)
 img = None
+fig, ax = pyplot.subplots(1,1)
 
 def display(framedata):
   global img, fig, ax
@@ -30,19 +29,21 @@ def display(framedata):
       pyplot.draw()
     pyplot.pause(0.001)
 
+def run_decode_frame(decoder, data_in):
+  while len(data_in):
+    framedata, nread = decoder.decode_frame(data_in)
+    data_in = data_in[nread:]
+    display(framedata)  
 
+def run_decode(decoder, data_in):
+  framedatas = decoder.decode(data_in)
+  for framedata in framedatas:
+    display(framedata)
+
+decoder = libh264decoder.H264Decoder()
 f = open('testclip.h264','r')
 while 1:
   data_in = f.read(1024)
   if not data_in:
     break
-  if 1:
-    while len(data_in):
-      framedata, nread = decoder.decode_frame(data_in)
-      data_in = data_in[nread:]
-      display(framedata)
-  else:
-    framedatas = decoder.decode(data_in)
-    for framedata in framedatas:
-      display(framedata)
-  
+  run_decode(decoder, data_in)
