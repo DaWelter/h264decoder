@@ -1,9 +1,3 @@
-/* I'm such a bad script kiddie. This code is entirely based on roxlu's code http://roxlu.com/2014/039/decoding-h264-and-yuv420p-playback
- * ...
- * Well, not quite anymore.
- */
-
-
 #include <stdexcept>
 
 extern "C" {
@@ -137,12 +131,13 @@ const AVFrame& ConverterRGB24::convert(const AVFrame &frame, ubyte* out_rgb)
 }
 
 /*
- * WARNING:
- * avpicture_get_size is used in http://dranger.com/ffmpeg/tutorial01.html 
- * to determine the size of the output frame buffer. However, avpicture_get_size returns
- * the size of a compact representation, without padding bytes. On the other hand,
- * avpicture_fill will require a larger buffer when linesize > width.
- */
+Determine required size of framebuffer.
+
+avpicture_get_size is used in http://dranger.com/ffmpeg/tutorial01.html 
+to do this. However, avpicture_get_size returns the size of a compact 
+representation, without padding bytes. Since we use avpicture_fill to 
+fill the buffer we should also use it to determine the required size.
+*/
 int ConverterRGB24::predict_size(int w, int h)
 {
   return avpicture_fill((AVPicture*)framergb, nullptr, PIX_FMT_RGB24, w, h);  
