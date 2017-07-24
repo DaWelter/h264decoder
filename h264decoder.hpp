@@ -18,6 +18,7 @@ mechanisms of boost::python.
 
 // for ssize_t (signed int type as large as pointer type)
 #include <cstdlib>
+#include <stdexcept>
 
 struct AVCodecContext;
 struct AVFrame;
@@ -25,6 +26,26 @@ struct AVCodec;
 struct AVCodecParserContext;
 struct SwsContext;
 struct AVPacket;
+
+
+class H264Exception : public std::runtime_error
+{
+public:
+  H264Exception(const char* s) : std::runtime_error(s) {}
+};
+
+class H264InitFailure : public H264Exception
+{
+public:
+    H264InitFailure(const char* s) : H264Exception(s) {}
+};
+
+class H264DecodeFailure : public H264Exception
+{
+public:
+    H264DecodeFailure(const char* s) : H264Exception(s) {}
+};
+
 
 class H264Decoder
 {

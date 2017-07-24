@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <stdexcept>
+#include <cassert>
 
 // python string api, see
 // https://docs.python.org/2/c-api/string.html
@@ -8,6 +9,7 @@ extern "C" {
   #include <Python.h>
 }
 
+#include <boost/python.hpp>
 #include <boost/python/str.hpp>
 #include <boost/python/tuple.hpp>
 #include <boost/python/module.hpp>
@@ -17,6 +19,47 @@ namespace py = boost::python;
 #include "h264decoder.hpp"
 
 using ubyte = unsigned char;
+
+
+class GILScopedReverseLock
+{
+  // see https://docs.python.org/2/c-api/init.html (Releasing the GIL ...)  
+public:
+  GILScopedReverseLock() 
+    : state(nullptr)
+  {
+    unlock();
+  }
+  
+  ~GILScopedReverseLock()
+  {
+    lock();
+  }
+  
+  void lock() 
+  {
+    // Allow successive calls to lock. 
+    // E.g. lock() followed by destructor.
+    if (state != nullptr)
+    {
+      PyEval_RestoreThread(state);
+      state = nullptr;
+    }
+  }
+  
+  void unlock()
+  {
+    assert (state == nullptr);
+    state = PyEval_SaveThread();
+  }
+  
+  GILScopedReverseLock(const GILScopedReverseLock &) = delete;
+  GILScopedReverseLock(const GILScopedReverseLock &&) = delete;
+  GILScopedReverseLock operator=(const GILScopedReverseLock &) = delete;
+  GILScopedReverseLock operator=(const GILScopedReverseLock &&) = delete;
+private:
+  PyThreadState *state;
+};
 
 
 /* The class wrapped in python via boost::python */
@@ -47,9 +90,7 @@ public:
 
 py::tuple PyH264Decoder::decode_frame_impl(const ubyte *data_in, ssize_t len, ssize_t &num_consumed, bool &is_frame_available)
 {
-  // see https://docs.python.org/2/c-api/init.html (Releasing the GIL ...)  
-  PyThreadState *_save = PyEval_SaveThread();  // allow the python interpreter to run other other threads than the current one.
-  
+  GILScopedReverseLock gilguard;
   num_consumed = decoder.parse((ubyte*)data_in, len);
   
   if (is_frame_available = decoder.is_frame_available())
@@ -57,26 +98,21 @@ py::tuple PyH264Decoder::decode_frame_impl(const ubyte *data_in, ssize_t len, ss
     const auto &frame = decoder.decode_frame();
     int w, h; std::tie(w,h) = width_height(frame);
     Py_ssize_t out_size = converter.predict_size(w,h);
-    
-    PyEval_RestoreThread(_save);
-    
-    /* We hold the GIL, so we can safely allocate a python object.
-       We allocate a string buffer large enough for the frame. 
-       Construction of py::handle causes ... TODO: WHAT? No increase of ref count ?!  */
+
+    gilguard.lock();
+    //   Construction of py::handle causes ... TODO: WHAT? No increase of ref count ?!
     py::object py_out_str(py::handle<>(PyString_FromStringAndSize(NULL, out_size)));
     char* out_buffer = PyString_AsString(py_out_str.ptr());
-    // allow other python threads again while the conversion runs
-    
-    _save = PyEval_SaveThread(); 
+
+    gilguard.unlock();
     const auto &rgbframe = converter.convert(frame, (ubyte*)out_buffer);
-    PyEval_RestoreThread(_save);
     
+    gilguard.lock();
     return py::make_tuple(py_out_str, w, h, row_size(rgbframe));
   }
-  else // no frame completed
+  else
   {
-    PyEval_RestoreThread(_save);
-    
+    gilguard.lock();
     return py::make_tuple(py::object(), 0, 0, 0);
   }
 }
@@ -102,19 +138,34 @@ py::list PyH264Decoder::decode(const py::str &data_in_str)
   
   py::list out;
   
-  while (len > 0)
+  try
   {
-    ssize_t num_consumed = 0;
-    bool is_frame_available = false;
-    auto frame = decode_frame_impl(data_in, len, num_consumed, is_frame_available);
-    
-    if (is_frame_available)
+    while (len > 0)
     {
-      out.append(frame);
+      ssize_t num_consumed = 0;
+      bool is_frame_available = false;
+      
+      try
+      {
+        auto frame = decode_frame_impl(data_in, len, num_consumed, is_frame_available);
+        if (is_frame_available)
+        {
+          out.append(frame);
+        }
+      }
+      catch (const H264DecodeFailure &e)
+      {
+        if (num_consumed <= 0)
+          // This case is fatal because we cannot continue to move ahead in the stream.
+          throw e;
+      }
+      
+      len -= num_consumed;
+      data_in += num_consumed;
     }
-    
-    len -= num_consumed;
-    data_in += num_consumed;
+  }
+  catch (const H264DecodeFailure &e)
+  {
   }
   
   return out;
@@ -127,5 +178,5 @@ BOOST_PYTHON_MODULE(libh264decoder)
   py::class_<PyH264Decoder>("H264Decoder")
                             .def("decode_frame", &PyH264Decoder::decode_frame)
                             .def("decode", &PyH264Decoder::decode);
-  disable_logging();
+  py::def("disable_logging", disable_logging);
 }

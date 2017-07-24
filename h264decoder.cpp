@@ -1,5 +1,3 @@
-#include <stdexcept>
-
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavutil/avutil.h>
@@ -24,11 +22,11 @@ H264Decoder::H264Decoder()
 
   codec = avcodec_find_decoder(AV_CODEC_ID_H264);
   if (!codec)
-    throw std::runtime_error("cannot find decoder");
+    throw H264InitFailure("cannot find decoder");
   
   context = avcodec_alloc_context3(codec);
   if (!context)
-    throw std::runtime_error("cannot allocate context");
+    throw H264InitFailure("cannot allocate context");
 
   if(codec->capabilities & CODEC_CAP_TRUNCATED) {
     context->flags |= CODEC_FLAG_TRUNCATED;
@@ -36,20 +34,20 @@ H264Decoder::H264Decoder()
 
   int err = avcodec_open2(context, codec, nullptr);
   if (err < 0)
-    throw std::runtime_error("cannot open context");
+    throw H264InitFailure("cannot open context");
 
   parser = av_parser_init(AV_CODEC_ID_H264);
   if (!parser)
-    throw std::runtime_error("cannot init parser");
+    throw H264InitFailure("cannot init parser");
   
   frame = av_frame_alloc();
   if (!frame)
-    throw std::runtime_error("cannot allocate frame");
+    throw H264InitFailure("cannot allocate frame");
 
 #if 1
   pkt = new AVPacket;
   if (!pkt)
-    throw std::runtime_error("cannot allocate packet");
+    throw H264InitFailure("cannot allocate packet");
   av_init_packet(pkt);
 #endif
 }
@@ -87,7 +85,7 @@ const AVFrame& H264Decoder::decode_frame()
   int got_picture = 0;
   int nread = avcodec_decode_video2(context, frame, &got_picture, pkt);
   if (nread < 0 || got_picture == 0)
-    throw std::runtime_error("error decoding frame\n");
+    throw H264DecodeFailure("error decoding frame\n");
   return *frame;
 }
 
@@ -96,7 +94,7 @@ ConverterRGB24::ConverterRGB24()
 {
   framergb = av_frame_alloc();
   if (!framergb)
-    throw std::runtime_error("cannot allocate frame");
+    throw H264DecodeFailure("cannot allocate frame");
   context = nullptr;
 }
 
@@ -118,7 +116,7 @@ const AVFrame& ConverterRGB24::convert(const AVFrame &frame, ubyte* out_rgb)
                                  w, h, PIX_FMT_RGB24, SWS_BILINEAR, 
                                  nullptr, nullptr, nullptr);
   if (!context)
-    throw std::runtime_error("cannot allocate context");
+    throw H264DecodeFailure("cannot allocate context");
   
   // Setup framergb with out_rgb as external buffer. Also say that we want RGB24 output.
   avpicture_fill((AVPicture*)framergb, out_rgb, PIX_FMT_RGB24, w, h);
@@ -160,4 +158,3 @@ void disable_logging()
 {
   av_log_set_level(AV_LOG_QUIET);
 }
-
