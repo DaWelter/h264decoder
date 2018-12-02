@@ -11,6 +11,8 @@ extern "C" {
 
 typedef unsigned char ubyte;
 
+// Warnings from MSVC
+#pragma warning (disable: 4996) // This function or variable may be unsafe.
 
 /* shamelessly copy pasted from
  * http://dranger.com/ffmpeg/tutorial01.html
@@ -49,7 +51,7 @@ int main(int argc, char *argv[])
   ConverterRGB24 converter;
   disable_logging();
   
-  std::FILE* fp = std::fopen(argv[1], "r");
+  std::FILE* fp = std::fopen(argv[1], "rb");
   if (!fp)
   {
     fprintf(stderr, "cannot open file %s\n", argv[1]);
@@ -61,13 +63,13 @@ int main(int argc, char *argv[])
   std::vector<ubyte> buffer(file_read_size);
   for (;;)
   {
-    int n = std::fread(&buffer[0], 1, buffer.size(), fp);
-    if (n <= 0) break;
+    std::size_t n = std::fread(&buffer[0], 1, buffer.size(), fp);
+    if (n == 0) break;
     
     auto const *data = &buffer[0];
     while (n > 0)
     {
-      int num_parsed = decoder.parse(data, n);
+      std::size_t num_parsed = decoder.parse(data, n);
       n -= num_parsed;
       data += num_parsed;
             

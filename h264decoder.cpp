@@ -65,10 +65,10 @@ H264Decoder::~H264Decoder()
 }
 
 
-ssize_t H264Decoder::parse(const ubyte* in_data, ssize_t in_size)
+std::size_t H264Decoder::parse(const ubyte* in_data, std::size_t in_size)
 {
   auto nread = av_parser_parse2(parser, context, &pkt->data, &pkt->size, 
-                                in_data, in_size, 
+                                in_data, (int)in_size,
                                 0, 0, AV_NOPTS_VALUE);
   return nread;
 }
