@@ -1,5 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 from __future__ import print_function
+# get samples from http://www.fastvdo.com/H.264.html
+#                  http://www.h264info.com/?page_id=20 aka http://www.h264info.com/clips.html
 
 import os
 import sys
@@ -28,7 +30,7 @@ def display(framedata):
     else:
       img.set_data(frame)
       pyplot.draw()
-    pyplot.pause(0.001)
+    pyplot.pause(0.0001)
 
 def run_decode_frame(decoder, data_in):
   while len(data_in):
@@ -42,9 +44,11 @@ def run_decode(decoder, data_in):
     display(framedata)
 
 decoder = libh264decoder.H264Decoder()
-with open('testclip.h264','rb') as f:
+with open('FVDO_Plane_4cif.264','rb') as f:
   while 1:
     data_in = f.read(1024)
+    print((data_in))
+   # print(data_in)
     if not data_in:
       break
     run_decode(decoder, data_in)

@@ -3,6 +3,7 @@
 *.kdev4
 *~
 build
+build2
 buildopt
 trash
 .spyderworkspace
@@ -10,6 +11,7 @@ trash
 *.kate-swp
 *.swp # create by vim
 *.log
+*.264
 
 #CMake stuff
 CMakeCache.txt

@@ -27,9 +27,15 @@ Requirements
 
 Notes:
 ------
-* To build for Python 3, define Python_ADDITIONAL_VERSIONS. In CMake-Gui you have to manually make a cache entry before configuring. Moreover, this script does not find the correct version of boost python. You have to check and set it manually if needed. E.g. on my Ubuntu system I have libboost_python-py35.so and libboost_python-py27.so. To make a long story short, you probably want to use something like
+* Linux: To build for Python 3, define Python_ADDITIONAL_VERSIONS. In CMake-Gui you have to manually make a cache entry before configuring. Moreover, this script does not find the correct version of boost python. You have to check and set it manually if needed. E.g. on my Ubuntu system I have libboost_python-py35.so and libboost_python-py27.so. To make a long story short, you probably want to use something like
 ```cmake -DPython_ADDITIONAL_VERSIONS=3.5 -DBoost_PYTHON_LIBRARY_RELEASE=/usr/lib/x86_64-linux-gnu/libboost_python-py35.so ...```
 as appropriate for your system.
+
+* Raspberry PI: To build for Python 3, define Python_ADDITIONAL_VERSIONS. In CMake-Gui you have to manually make a cache entry before configuring. Moreover, this script does not find the correct version of boost python. You have to check and set it manually if needed. E.g. on my Ubuntu system I have libboost_python-py35.so and libboost_python-py27.so. To make a long story short, you probably want to use something like
+```cmake -DPython_ADDITIONAL_VERSIONS=3.5 -DBoost_PYTHON_LIBRARY_RELEASE=/usr/lib/arm-linux-gnueabihf/libboost_python-py35.so ...```
+as appropriate for your system.
+
+
 * Added experimental support for building with MSVC on windows. I managed to build with the libav distribution from the official download "libav-11.3-win64.7z". Boost python 1.67 built from sources, after applying the patch for some issue (https://github.com/boostorg/python/issues/193). Link to the multi threaded release dll configuration, e.g. boost_python37-vc140-mt-x64-1_67.lib. 
 * Building on Linux for 2.7 should be straight forward, provided the requirements are in the usual system locations.
 * Routines work with the ```str``` type in Python 2 and ```bytes``` type in Python 3.
