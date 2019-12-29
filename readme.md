@@ -27,12 +27,27 @@ Requirements
 
 Notes:
 ------
-* Linux: To build for Python 3, define Python_ADDITIONAL_VERSIONS. In CMake-Gui you have to manually make a cache entry before configuring. Moreover, this script does not find the correct version of boost python. You have to check and set it manually if needed. E.g. on my Ubuntu system I have libboost_python-py35.so and libboost_python-py27.so. To make a long story short, you probably want to use something like
-```cmake -DPython_ADDITIONAL_VERSIONS=3.5 -DBoost_PYTHON_LIBRARY_RELEASE=/usr/lib/x86_64-linux-gnu/libboost_python-py35.so ...```
+* Linux: 
+```
+    mkdir build
+    cd build 
+    cmake ../CMakeList.txt -DPython_ADDITIONAL_VERSIONS=3.5 -DBoost_PYTHON_LIBRARY_RELEASE=/usr/lib/x86_64-linux-gnu/libboost_python-py35.so ../
+    make
+``` 
+ 
+To build for Python 3, define Python_ADDITIONAL_VERSIONS. In CMake-Gui you have to manually make a cache entry before configuring. Moreover, this script does not find the correct version of boost python. You have to check and set it manually if needed. E.g. on my Ubuntu system I have libboost_python-py35.so and libboost_python-py27.so. To make a long story short, you probably want to use something like
+```cmake ../CMakeList.txt -DPython_ADDITIONAL_VERSIONS=3.5 -DBoost_PYTHON_LIBRARY_RELEASE=/usr/lib/x86_64-linux-gnu/libboost_python-py35.so ../```
 as appropriate for your system.
 
-* Raspberry PI: To build for Python 3, define Python_ADDITIONAL_VERSIONS. In CMake-Gui you have to manually make a cache entry before configuring. Moreover, this script does not find the correct version of boost python. You have to check and set it manually if needed. E.g. on my Ubuntu system I have libboost_python-py35.so and libboost_python-py27.so. To make a long story short, you probably want to use something like
-```cmake -DPython_ADDITIONAL_VERSIONS=3.5 -DBoost_PYTHON_LIBRARY_RELEASE=/usr/lib/arm-linux-gnueabihf/libboost_python-py35.so ...```
+* Raspberry Pi: 
+```
+   mkdir build
+   cd build 
+   cmake ../CMakeList.txt -DPython_ADDITIONAL_VERSIONS=3.5 -DBoost_PYTHON_LIBRARY_RELEASE=/usr/lib/x86_64-linux-gnu/libboost_python-py35.so ../
+   make
+```
+To build for Python 3, define Python_ADDITIONAL_VERSIONS. In CMake-Gui you have to manually make a cache entry before configuring. Moreover, this script does not find the correct version of boost python. You have to check and set it manually if needed. E.g. on my Raspberry system I have libboost_python-py35.so and libboost_python-py27.so. To make a long story short, you probably want to use something like
+```cmake ../CMakeList.txt-DPython_ADDITIONAL_VERSIONS=3.5 /usr/lib/arm-linux-gnueabihf/libboost_python-py35.so ...```
 as appropriate for your system.
 
 
