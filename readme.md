@@ -28,7 +28,8 @@ Requirements
 Notes:
 ------
 * Linux: 
- ```mkdir build
+```
+    mkdir build
     cd build 
     cmake ../CMakeList.txt -DPython_ADDITIONAL_VERSIONS=3.5 -DBoost_PYTHON_LIBRARY_RELEASE=/usr/lib/x86_64-linux-gnu/libboost_python-py35.so ../
     make
@@ -39,7 +40,8 @@ To build for Python 3, define Python_ADDITIONAL_VERSIONS. In CMake-Gui you have 
 as appropriate for your system.
 
 * Raspberry Pi: 
-```mkdir build
+```
+   mkdir build
    cd build 
    cmake ../CMakeList.txt -DPython_ADDITIONAL_VERSIONS=3.5 -DBoost_PYTHON_LIBRARY_RELEASE=/usr/lib/x86_64-linux-gnu/libboost_python-py35.so ../
    make
