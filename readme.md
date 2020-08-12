@@ -7,7 +7,7 @@ need H264 decoding, since a H264 stream is what the RPi software
 delivers. Furthermore flexibility to incorporate the decoder in larger
 python programs in various ways is desirable.
 
-The code might also serve as example for libav and boost python usage.
+The code might also serve as example for libav and pybind11 usage.
 
 
 Files
@@ -21,7 +21,6 @@ Requirements
 ------------
 * cmake for building
 * libav
-* boost python
 
 
 Todo

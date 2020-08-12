@@ -1,8 +1,5 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
-import os
-import sys
-import numpy as np
 import threading
 import libh264decoder
 
@@ -13,7 +10,7 @@ class DecoderThread(threading.Thread):
     threading.Thread.__init__(self)
     self.counter = 0
   def run(self):
-    with open(thefile,'r') as f:
+    with open(thefile, 'rb') as f:
       num_frames = 0
       decoder = libh264decoder.H264Decoder()
       # Original way is 60 fps on laptop, this way is 100 fps
@@ -23,7 +20,7 @@ class DecoderThread(threading.Thread):
           break
         framelist = decoder.decode(data_in)
         for frame in framelist:
-          print 'thread %s decoded frame %i' % (self.ident, self.counter)
+          print('thread %s decoded frame %i' % (self.ident, self.counter))
           self.counter += 1
       return num_frames
 

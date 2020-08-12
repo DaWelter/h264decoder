@@ -57,3 +57,8 @@ target/
 *.exe
 *.out
 *.app
+
+dist/
+*.egg-info/
+*build*/
+testclip.h264

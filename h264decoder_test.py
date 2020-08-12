@@ -1,7 +1,5 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
-import os
-import sys
 import numpy as np
 
 import libh264decoder
@@ -16,9 +14,9 @@ def display(framedata):
   global img, fig, ax
   (frame, w, h, ls) = framedata
   if frame is not None:
-    print 'frame size %i bytes, w %i, h %i, linesize %i' % (len(frame), w, h, ls)
-    frame = np.fromstring(frame, dtype = np.ubyte, count = len(frame), sep = '')
-    frame = frame.reshape((h, ls/3, 3))
+    print('frame size %i bytes, w %i, h %i, linesize %i' % (len(frame), w, h, ls))
+    frame = np.frombuffer(frame, dtype=np.ubyte, count=len(frame))
+    frame = frame.reshape((h, ls//3, 3))
     frame = frame[:,:w,:]
     
     if not img:
@@ -41,7 +39,7 @@ def run_decode(decoder, data_in):
     display(framedata)
 
 decoder = libh264decoder.H264Decoder()
-f = open('testclip.h264','r')
+f = open('testclip.h264', 'rb')
 while 1:
   data_in = f.read(1024)
   if not data_in:

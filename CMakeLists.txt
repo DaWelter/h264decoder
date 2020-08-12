@@ -1,25 +1,22 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.11)
 project(python_h264decoder)
 
-set(Python_ADDITIONAL_VERSIONS 2.7)
-find_package(PythonInterp 2.7 REQUIRED)
-find_package(PythonLibs 2.7 REQUIRED )
-find_package(Boost REQUIRED COMPONENTS "python")
+set(CMAKE_BUILD_TYPE Debug)
 
-include_directories(${PYTHON_INCLUDE_DIRS})
-include_directories(${Boost_INCLUDE_DIRS})
-link_directories(${Boost_LIBRARY_DIRS})
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(libswscale REQUIRED libswscale)
+pkg_check_modules(libavutil REQUIRED libavutil)
+pkg_check_modules(libavcodec REQUIRED libavcodec)
 
-add_compile_options ("-std=c++0x")
+include(FetchContent)
+FetchContent_Declare(pybind11 GIT_REPOSITORY https://github.com/pybind/pybind11)
+FetchContent_MakeAvailable(pybind11)
 
-add_executable(h264decoder_test1 h264decoder.cpp h264decoder_test1.cpp)
-target_link_libraries(h264decoder_test1 avcodec swscale avutil)
+link_libraries(${libswscale_LIBRARIES} ${libavutil_LIBRARIES} ${libavcodec_LIBRARIES})
+include_directories(${libswscale_INCLUDE_DIRS} ${libavutil_INCLUDE_DIRS} ${libavcodec_INCLUDE_DIRS})
 
-add_library(h264decoder SHARED h264decoder.cpp h264decoder_python.cpp)
-target_link_libraries(h264decoder avcodec swscale avutil ${Boost_PYTHON_LIBRARY_RELEASE} ${PYTHON_LIBRARIES})
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_FLAGS "-Wall -Wpedantic")
 
-
-add_custom_command(TARGET h264decoder POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E create_symlink 
-                   ${CMAKE_BINARY_DIR}/libh264decoder.so ${CMAKE_SOURCE_DIR}/libh264decoder.so)
-install(TARGETS h264decoder LIBRARY DESTINATION .)
+pybind11_add_module(libh264decoder h264decoder.cpp h264decoder_python.cpp)
+#add_executable(h264decoder_test1 h264decoder.cpp h264decoder_test1.cpp)
