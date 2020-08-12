@@ -1,6 +1,7 @@
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libavutil/avutil.h>
+#include <libavutil/imgutils.h>
 #include <libavutil/mem.h>
 #include <libswscale/swscale.h>
 }
@@ -82,11 +83,16 @@ bool H264Decoder::is_frame_available() const
 
 const AVFrame& H264Decoder::decode_frame()
 {
-  int got_picture = 0;
-  int nread = avcodec_decode_video2(context, frame, &got_picture, pkt);
-  if (nread < 0 || got_picture == 0)
-    throw H264DecodeFailure("error decoding frame\n");
-  return *frame;
+  int ret;
+  if (pkt) {
+    ret = avcodec_send_packet(context, pkt);
+    if (!ret) {
+      ret = avcodec_receive_frame(context, frame);
+      if (!ret)
+        return *frame;
+    }
+  }
+  throw H264DecodeFailure("error decoding frame");
 }
 
 
@@ -119,7 +125,7 @@ const AVFrame& ConverterRGB24::convert(const AVFrame &frame, ubyte* out_rgb)
     throw H264DecodeFailure("cannot allocate context");
   
   // Setup framergb with out_rgb as external buffer. Also say that we want RGB24 output.
-  avpicture_fill((AVPicture*)framergb, out_rgb, AV_PIX_FMT_RGB24, w, h);
+  av_image_fill_arrays(framergb->data, framergb->linesize, out_rgb, AV_PIX_FMT_RGB24, w, h, 1);
   // Do the conversion.
   sws_scale(context, frame.data, frame.linesize, 0, h,
             framergb->data, framergb->linesize);
@@ -133,12 +139,12 @@ Determine required size of framebuffer.
 
 avpicture_get_size is used in http://dranger.com/ffmpeg/tutorial01.html 
 to do this. However, avpicture_get_size returns the size of a compact 
-representation, without padding bytes. Since we use avpicture_fill to 
+representation, without padding bytes. Since we use av_image_fill_arrays to
 fill the buffer we should also use it to determine the required size.
 */
 int ConverterRGB24::predict_size(int w, int h)
 {
-  return avpicture_fill((AVPicture*)framergb, nullptr, AV_PIX_FMT_RGB24, w, h);
+  return av_image_fill_arrays(framergb->data, framergb->linesize, nullptr, AV_PIX_FMT_RGB24, w, h, 1);
 }
 
 
