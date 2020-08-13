@@ -162,7 +162,7 @@ py::list PyH264Decoder::decode(const py::bytes &data_in_str)
 }
 
 
-PYBIND11_MODULE(libh264decoder, m)
+PYBIND11_MODULE(h264decoder, m)
 {
   PyEval_InitThreads(); // need for release of the GIL (http://stackoverflow.com/questions/8009613/boost-python-not-supporting-parallelism)
   py::class_<PyH264Decoder>(m, "H264Decoder")

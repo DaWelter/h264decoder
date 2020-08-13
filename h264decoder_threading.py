@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import threading
-import libh264decoder
+import h264decoder
 
 thefile = 'testclip.h264'
 
@@ -12,7 +12,7 @@ class DecoderThread(threading.Thread):
   def run(self):
     with open(thefile, 'rb') as f:
       num_frames = 0
-      decoder = libh264decoder.H264Decoder()
+      decoder = h264decoder.H264Decoder()
       # Original way is 60 fps on laptop, this way is 100 fps
       while 1:
         data_in = f.read(1024)

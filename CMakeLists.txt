@@ -24,5 +24,5 @@ include_directories(${libswscale_INCLUDE_DIRS} ${libavutil_INCLUDE_DIRS} ${libav
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-Wall -Wpedantic")
 
-pybind11_add_module(libh264decoder h264decoder.cpp h264decoder_python.cpp)
+pybind11_add_module(h264decoder h264decoder.cpp h264decoder_python.cpp)
 #add_executable(h264decoder_test1 h264decoder.cpp h264decoder_test1.cpp)

@@ -62,9 +62,9 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=self.build_temp)
 
 setup(
-    name='libh264decoder',
+    name='h264decoder',
     author='Michael Welter',
-    ext_modules=[CMakeExtension('libh264decoder')],
+    ext_modules=[CMakeExtension('h264decoder')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
 )

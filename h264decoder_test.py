@@ -2,7 +2,7 @@
 
 import numpy as np
 
-import libh264decoder
+import h264decoder
 
 import matplotlib.pyplot as pyplot
 
@@ -38,7 +38,7 @@ def run_decode(decoder, data_in):
   for framedata in framedatas:
     display(framedata)
 
-decoder = libh264decoder.H264Decoder()
+decoder = h264decoder.H264Decoder()
 f = open('testclip.h264', 'rb')
 while 1:
   data_in = f.read(1024)
