@@ -83,6 +83,7 @@ bool H264Decoder::is_frame_available() const
 
 const AVFrame& H264Decoder::decode_frame()
 {
+#if (LIBAVCODEC_VERSION_MAJOR > 56)
   int ret;
   if (pkt) {
     ret = avcodec_send_packet(context, pkt);
@@ -93,6 +94,13 @@ const AVFrame& H264Decoder::decode_frame()
     }
   }
   throw H264DecodeFailure("error decoding frame");
+#else
+  int got_picture = 0;
+  int nread = avcodec_decode_video2(context, frame, &got_picture, pkt);
+  if (nread < 0 || got_picture == 0)
+    throw H264DecodeFailure("error decoding frame\n");
+  return *frame;
+#endif
 }
 
 
