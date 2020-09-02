@@ -22,6 +22,10 @@ Requirements
 * cmake for building
 * libav
 
+Credits
+-------
+* [Michael Welter](https://github.com/DaWelter)
+* [Martin Valgur](https://github.com/valgur)
 
 Todo
 ----
