@@ -4,6 +4,7 @@ import re
 import sys
 import platform
 import subprocess
+import shlex
 
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
@@ -17,7 +18,20 @@ class CMakeExtension(Extension):
 
 
 class CMakeBuild(build_ext):
-    def run(self):
+    user_options = build_ext.user_options + [('cmake-args=', None, "options to pass to cmake")]
+
+    def initialize_options(self):
+        build_ext.initialize_options(self)
+        self.cmake_args = None
+
+    def finalize_options(self):
+        build_ext.finalize_options(self)
+        if self.cmake_args is None:
+            self.cmake_args = []
+        else:
+            self.cmake_args = shlex.split(self.cmake_args)
+
+    def run(self):   
         try:
             out = subprocess.check_output(['cmake', '--version'])
         except OSError:
@@ -51,6 +65,8 @@ class CMakeBuild(build_ext):
         else:
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j2']
+
+        cmake_args += self.cmake_args # Provided on command line
 
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
