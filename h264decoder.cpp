@@ -29,8 +29,9 @@ H264Decoder::H264Decoder()
   if (!context)
     throw H264InitFailure("cannot allocate context");
 
-  if(codec->capabilities & CODEC_CAP_TRUNCATED) {
-    context->flags |= CODEC_FLAG_TRUNCATED;
+  // Note: CODEC_CAP_TRUNCATED was prefixed with AV_...
+  if(codec->capabilities & AV_CODEC_CAP_TRUNCATED) {
+    context->flags |= AV_CODEC_FLAG_TRUNCATED;
   }  
 
   int err = avcodec_open2(context, codec, nullptr);
@@ -66,7 +67,7 @@ H264Decoder::~H264Decoder()
 }
 
 
-ssize_t H264Decoder::parse(const ubyte* in_data, ssize_t in_size)
+ptrdiff_t H264Decoder::parse(const ubyte* in_data, ptrdiff_t in_size)
 {
   auto nread = av_parser_parse2(parser, context, &pkt->data, &pkt->size, 
                                 in_data, in_size, 
