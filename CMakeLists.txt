@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(python_h264decoder)
+project(h264decoder)
 
 set(CMAKE_BUILD_TYPE Debug)
 
