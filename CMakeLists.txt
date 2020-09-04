@@ -3,13 +3,32 @@ project(h264decoder)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-find_package(FFMPEG REQUIRED swscale avutil avcodec)
+# Not working on Windows
+#   find_package(PkgConfig REQUIRED)
+#   pkg_check_modules(libswscale REQUIRED libswscale)
+#   pkg_check_modules(libavutil REQUIRED libavutil)
+#   pkg_check_modules(libavcodec REQUIRED libavcodec)
+#
+# Not on Ubuntu ...
+# find_package(FFMPEG REQUIRED swscale avutil avcodec)
+
+# So we do it more low level
+find_path( AVCODEC_INCLUDE_DIR libavcodec/avcodec.h )
+find_library( AVCODEC_LIBRARY avcodec )
+find_path( AVUTIL_INCLUDE_DIR libavutil/avutil.h )
+find_library( AVUTIL_LIBRARY avutil )
+find_path( SWSCALE_INCLUDE_DIR libswscale/swscale.h )
+find_library( SWSCALE_LIBRARY swscale )
+
+set(FFMPEG_LIBRARIES ${AVCODEC_LIBRARY} ${AVUTIL_LIBRARY} ${SWSCALE_LIBRARY})
+set(FFMPEG_INCLUDE_DIR ${AVCODEC_INCLUDE_DIR} ${AVUTIL_INCLUDE_DIR} ${SWSCALE_INCLUDE_DIR})
+
 
 find_package(pybind11)
 if(pybind11_FOUND)
   message("Using existing pybind11 v${pybind11_VERSION}")
 else()
-  message("Fetching latest pybind11")
+  message("Fetching pybind11")
   include(FetchContent)
   FetchContent_Declare(
     pybind11
