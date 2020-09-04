@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
   ConverterRGB24 converter;
   disable_logging();
   
-  std::FILE* fp = std::fopen(argv[1], "r");
+  std::FILE* fp = std::fopen(argv[1], "rb");
   if (!fp)
   {
     fprintf(stderr, "cannot open file %s\n", argv[1]);
