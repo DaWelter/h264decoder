@@ -3,6 +3,8 @@ project(h264decoder)
 
 set(CMAKE_BUILD_TYPE Debug)
 
+set (BuildExamples False CACHE BOOL "Build the examples")
+
 # Not working on Windows
 #   find_package(PkgConfig REQUIRED)
 #   pkg_check_modules(libswscale REQUIRED libswscale)
@@ -37,13 +39,23 @@ else()
   FetchContent_MakeAvailable(pybind11)
 endif()
 
-link_libraries(${FFMPEG_LIBRARIES})
-include_directories(${FFMPEG_INCLUDE_DIR})
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_CXX_STANDARD 14)
 if (NOT WIN32)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wpedantic")
 endif()
 
-pybind11_add_module(h264decoder h264decoder.cpp h264decoder_python.cpp)
-#add_executable(h264decoder_test1 h264decoder.cpp h264decoder_test1.cpp)
+
+add_library(h264decoderlib STATIC src/h264decoder.cpp src/h264decoder.hpp)
+target_sources(h264decoderlib PUBLIC src/h264decoder.hpp)
+target_link_libraries(h264decoderlib PUBLIC ${FFMPEG_LIBRARIES})
+target_include_directories(h264decoderlib PUBLIC ${FFMPEG_INCLUDE_DIR})
+target_include_directories(h264decoderlib PUBLIC "src")
+
+pybind11_add_module(h264decoder src/h264decoder_python.cpp)
+target_link_libraries(h264decoder PRIVATE h264decoderlib)
+
+if (BuildExamples)
+  add_subdirectory(examples)
+endif ()

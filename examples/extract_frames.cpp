@@ -74,16 +74,15 @@ int main(int argc, char *argv[])
       if (decoder.is_frame_available())
       {
         const AVFrame& frame = decoder.decode_frame();
-	//NOTE: pixel format of enum symbol named AV_PIX_FMT_YUV420P comes out of h264 decoder. 
-	// This symbols happens to have numeric value zero. So it is no bug when frame->format == 0.
-	printf("frame decoded: %i x %i, fmt = %i\n", frame.width, frame.height, frame.format);
-	
-	framebuffer.resize(converter.predict_size(frame.width, frame.height));
-	const AVFrame& rgbframe = converter.convert(frame, &framebuffer[0]);
-	
-	++frame_num;
-	if (frame_num < 10)
-	  SaveFrame(rgbframe, frame_num);
+        //NOTE: pixel format of enum symbol named AV_PIX_FMT_YUV420P comes out of h264 decoder. 
+        // This symbols happens to have numeric value zero. So it is no bug when frame->format == 0.
+        printf("frame decoded: %i x %i, fmt = %i\n", frame.width, frame.height, frame.format);
+        
+        framebuffer.resize(converter.predict_size(frame.width, frame.height));
+        const AVFrame& rgbframe = converter.convert(frame, &framebuffer[0]);
+        
+        ++frame_num;
+        SaveFrame(rgbframe, frame_num);
       }
     } // while(n)
   }

@@ -2,10 +2,15 @@
 
 import numpy as np
 import time
+import sys
 
 import h264decoder
 
-thefile = 'testclip.h264'
+if len(sys.argv)<2:
+  print ("Usage: {} video".format(sys.argv[0]))
+  sys.exit(-1)
+
+thefile = sys.argv[1]
 
 if 1:
   def conv(frame):

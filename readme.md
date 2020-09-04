@@ -9,18 +9,42 @@ python programs in various ways is desirable.
 
 The code might also serve as example for libav and pybind11 usage.
 
-Files
------
 
-* `h264decoder.hpp`, `h264decoder.cpp` and `h264decoder_python.cpp` contain the module code.
-* Other source files are tests and demos.
+Examples
+--------
+You can do something like this
+```python
+import numpy as np
+
+f = open(thefile, 'rb')
+decoder = h264decoder.H264Decoder()
+while 1:
+  data_in = f.read(1024)
+  if not data_in:
+    break
+  framedatas = decoder.decode(data_in)
+  for framedata in framedatas:
+    (frame, w, h, ls) = framedata
+    if frame is not None:
+        #print('frame size %i bytes, w %i, h %i, linesize %i' % (len(frame), w, h, ls))
+        frame = np.frombuffer(frame, dtype=np.ubyte, count=len(frame))
+        frame = frame.reshape((h, ls//3, 3))
+        frame = frame[:,:w,:]
+        # At this point `frame` references your usual height x width x rgb channels numpy array of unsigned bytes.
+```
+There are simple demo programs in the ```examples``` folder. ```display_frames.py`` is probably the one you want to take a look at.
+
 
 Requirements
 ------------
+
 * Python 3
 * cmake for building
 * libav / ffmpeg (swscale, avutil and avcodec)
 * pybind11 (will be automatically downloaded from github if not found)
+For the examples
+* matplotlib
+* numpy
 
 I tested it on
 
