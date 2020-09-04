@@ -32,7 +32,7 @@ while 1:
         frame = frame[:,:w,:]
         # At this point `frame` references your usual height x width x rgb channels numpy array of unsigned bytes.
 ```
-There are simple demo programs in the ```examples``` folder. ```display_frames.py`` is probably the one you want to take a look at.
+There are simple demo programs in the ```examples``` folder. ```display_frames.py``` is probably the one you want to take a look at.
 
 
 Requirements
@@ -42,7 +42,9 @@ Requirements
 * cmake for building
 * libav / ffmpeg (swscale, avutil and avcodec)
 * pybind11 (will be automatically downloaded from github if not found)
-For the examples
+
+For the example scripts
+
 * matplotlib
 * numpy
 
