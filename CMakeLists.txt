@@ -3,10 +3,7 @@ project(h264decoder)
 
 set(CMAKE_BUILD_TYPE Debug)
 
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(libswscale REQUIRED libswscale)
-pkg_check_modules(libavutil REQUIRED libavutil)
-pkg_check_modules(libavcodec REQUIRED libavcodec)
+find_package(FFMPEG REQUIRED swscale avutil avcodec)
 
 find_package(pybind11)
 if(pybind11_FOUND)
@@ -21,8 +18,8 @@ else()
   FetchContent_MakeAvailable(pybind11)
 endif()
 
-link_libraries(${libswscale_LIBRARIES} ${libavutil_LIBRARIES} ${libavcodec_LIBRARIES})
-include_directories(${libswscale_INCLUDE_DIRS} ${libavutil_INCLUDE_DIRS} ${libavcodec_INCLUDE_DIRS})
+link_libraries(${FFMPEG_LIBRARIES})
+include_directories(${FFMPEG_INCLUDE_DIR})
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "-Wall -Wpedantic")
