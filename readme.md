@@ -14,6 +14,7 @@ Examples
 --------
 You can do something like this
 ```python
+import h264decoder
 import numpy as np
 
 f = open(thefile, 'rb')
@@ -33,7 +34,6 @@ while 1:
         # At this point `frame` references your usual height x width x rgb channels numpy array of unsigned bytes.
 ```
 There are simple demo programs in the ```examples``` folder. ```display_frames.py``` is probably the one you want to take a look at.
-
 
 Requirements
 ------------
@@ -99,6 +99,18 @@ pip install .
 ```
 
 in the project directory.
+
+
+History
+-------
+
+### v2
+
+For Python 3. Switch to PyBind11. Module renamed from libh264decoder to h264decoder! Support installation via setuptools.
+
+### v1
+
+For Python 2.7. Depends on Boost Python. Project/Build file generation with CMake.
 
 
 Credits
