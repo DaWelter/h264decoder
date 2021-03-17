@@ -90,8 +90,9 @@ py::tuple PyH264Decoder::decode_frame_impl(const ubyte *data_in, ssize_t len, ss
     Py_ssize_t out_size = converter.predict_size(w,h);
 
     gilguard.lock();
-    //   Construction of py::handle causes ... TODO: WHAT? No increase of ref count ?!
-    py::bytes py_out_str = py::handle(PyBytes_FromStringAndSize(nullptr, out_size)).cast<py::bytes>();
+
+    // Pybind11 takes ownership over the created buffer.
+    py::bytes py_out_str = py::reinterpret_steal<py::bytes>(PyBytes_FromStringAndSize(nullptr, out_size));
     char* out_buffer = PyBytes_AsString(py_out_str.ptr());
 
     gilguard.unlock();
