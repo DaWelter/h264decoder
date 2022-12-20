@@ -10,6 +10,9 @@ trash
 *.kate-swp
 *.swp # create by vim
 *.log
+.cache
+.vscode
+compile_commands.json
 
 #CMake stuff
 CMakeCache.txt

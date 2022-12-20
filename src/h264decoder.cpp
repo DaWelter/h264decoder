@@ -6,6 +6,8 @@ extern "C" {
 #include <libswscale/swscale.h>
 }
 
+#include <iostream>
+
 #include "h264decoder.hpp"
 
 typedef unsigned char ubyte;
@@ -18,8 +20,11 @@ typedef unsigned char ubyte;
 
 
 H264Decoder::H264Decoder()
+  : pkt_{std::make_unique<AVPacket>()}
 {
   avcodec_register_all();
+
+  //av_log_set_level(AV_LOG_VERBOSE);
 
   codec = avcodec_find_decoder(AV_CODEC_ID_H264);
   if (!codec)
@@ -46,12 +51,9 @@ H264Decoder::H264Decoder()
   if (!frame)
     throw H264InitFailure("cannot allocate frame");
 
-#if 1
-  pkt = new AVPacket;
-  if (!pkt)
+  if (!pkt_)
     throw H264InitFailure("cannot allocate packet");
-  av_init_packet(pkt);
-#endif
+  av_init_packet(pkt_.get());
 }
 
 
@@ -61,45 +63,40 @@ H264Decoder::~H264Decoder()
   avcodec_close(context);
   av_free(context);
   av_frame_free(&frame);
-#if 1
-  delete pkt;
-#endif
 }
 
 
-ptrdiff_t H264Decoder::parse(const ubyte* in_data, ptrdiff_t in_size)
+ParseResult H264Decoder::parse(const ubyte* in_data, ptrdiff_t in_size)
 {
-  auto nread = av_parser_parse2(parser, context, &pkt->data, &pkt->size, 
+  auto nread = av_parser_parse2(parser, context, &pkt_->data, &pkt_->size, 
                                 in_data, in_size, 
                                 0, 0, AV_NOPTS_VALUE);
-  return nread;
+  // We might have a frame to decode. But what exactly is a packet? 
+  //Is it guaranteed to contain a complete frame?
+  if (pkt_->size)
+  {
+    const auto frame = decode_frame();
+    return ParseResult{nread, frame};
+  }
+  return ParseResult{nread, nullptr};
 }
 
 
-bool H264Decoder::is_frame_available() const
-{
-  return pkt->size > 0;
-}
-
-
-const AVFrame& H264Decoder::decode_frame()
+const AVFrame* H264Decoder::decode_frame()
 {
 #if (LIBAVCODEC_VERSION_MAJOR > 56)
-  int ret;
-  if (pkt) {
-    ret = avcodec_send_packet(context, pkt);
-    if (!ret) {
-      ret = avcodec_receive_frame(context, frame);
-      if (!ret)
-        return *frame;
-    }
+  int ret = avcodec_send_packet(context, pkt_.get());
+  if (!ret) {
+    ret = avcodec_receive_frame(context, frame);
+    if (!ret)
+      return frame;
   }
-  throw H264DecodeFailure("error decoding frame");
+  return nullptr;
 #else
   int got_picture = 0;
   int nread = avcodec_decode_video2(context, frame, &got_picture, pkt);
   if (nread < 0 || got_picture == 0)
-    throw H264DecodeFailure("error decoding frame\n");
+    return nullptr;
   return *frame;
 #endif
 }

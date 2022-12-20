@@ -2,8 +2,15 @@ cmake_minimum_required(VERSION 3.14)
 project(h264decoder)
 
 set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_EXPORT_COMPILE_COMMANDS TRUE)
 
 set (BuildExamples False CACHE BOOL "Build the examples")
+
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_CXX_STANDARD 17)
+if (NOT WIN32)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wpedantic -Wno-deprecated-declarations")
+endif()
 
 # Not working on Windows
 #   find_package(PkgConfig REQUIRED)
@@ -37,13 +44,6 @@ else()
     GIT_REPOSITORY https://github.com/pybind/pybind11
     GIT_TAG v2.5.0)
   FetchContent_MakeAvailable(pybind11)
-endif()
-
-
-set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_CXX_STANDARD 14)
-if (NOT WIN32)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wpedantic")
 endif()
 
 

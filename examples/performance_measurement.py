@@ -4,6 +4,10 @@ import numpy as np
 import time
 import sys
 
+'''
+Old code. Will be removed. Timing will be added to display_frames.py.
+'''
+
 import h264decoder
 
 if len(sys.argv)<2:
