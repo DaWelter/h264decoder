@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.10)
 project(h264decoder)
 
 set(CMAKE_BUILD_TYPE Debug)
@@ -49,7 +49,7 @@ endif()
 
 
 add_library(h264decoderlib STATIC src/h264decoder.cpp src/h264decoder.hpp)
-target_sources(h264decoderlib PUBLIC src/h264decoder.hpp)
+target_sources(h264decoderlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src/h264decoder.hpp)
 target_link_libraries(h264decoderlib PUBLIC ${FFMPEG_LIBRARIES})
 target_include_directories(h264decoderlib PUBLIC ${FFMPEG_INCLUDE_DIR})
 target_include_directories(h264decoderlib PUBLIC "src")
