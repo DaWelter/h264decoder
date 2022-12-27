@@ -8,8 +8,8 @@ delivers. Furthermore flexibility to incorporate the decoder in larger
 python programs in various ways is desirable.
 
 The code might also serve as example for libav and pybind11 usage.
-
-Master branch status: ![Master branch status](https://github.com/github/docs/actions/workflows/python-package.yml/badge.svg?branch=master)
+/blob/CI/CD-improvements/.github/workflows/python-package.yml
+Master branch status: ![Master branch status](https://github.com/DaWelter/h264decoder/actions/workflows/python-package.yml/badge.svg?branch=master)
 
 
 Examples
