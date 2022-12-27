@@ -173,8 +173,8 @@ def test_multithreading():
     
     assert [*sorted(only_the_worker_ids)] != only_the_worker_ids, "Some degree of parallelism is expected. But it looks like one thread ran after the other."
 
-    frames1 = sum((x for w,x in items if w == 1), start=[])
-    frames2 = sum((x for w,x in items if w == 2), start=[])
+    frames1 = sum((x for w,x in items if w == 1), [])
+    frames2 = sum((x for w,x in items if w == 2), [])
 
     LATENCY_FRAMES=5
     assert len(expected_frames)-LATENCY_FRAMES <= len(frames1) <= len(expected_frames), f"Number of decoded frames: {len(frames1)} vs expected {len(expected_frames)}"
