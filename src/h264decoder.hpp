@@ -61,7 +61,7 @@ class H264Decoder
   /* Persistent things here, using RAII for cleanup. */
   AVCodecContext        *context;
   AVFrame               *frame;
-  AVCodec               *codec;
+  const AVCodec               *codec;
   AVCodecParserContext  *parser;
   /* In the documentation example on the github master branch, the 
 packet is put on the heap. This is done here to store the pointers 

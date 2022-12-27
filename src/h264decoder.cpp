@@ -22,9 +22,9 @@ typedef unsigned char ubyte;
 H264Decoder::H264Decoder()
   : pkt_{std::make_unique<AVPacket>()}
 {
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(58, 9, 100)
   avcodec_register_all();
-
-  //av_log_set_level(AV_LOG_VERBOSE);
+#endif
 
   codec = avcodec_find_decoder(AV_CODEC_ID_H264);
   if (!codec)
