@@ -148,7 +148,10 @@ def test_multithreading():
         buffer = io.BytesIO(streamdata)
         decoder = h264decoder.H264Decoder()
         max_feed_size = 128
-        while (data_in := buffer.read(max_feed_size)):
+        while True:
+            data_in := buffer.read(max_feed_size)
+            if not data_in:
+                break
             framelist = decoder.decode(data_in)
             q.put_nowait((worker_id, framelist))
 
