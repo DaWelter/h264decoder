@@ -13,7 +13,6 @@ on:
 jobs:
   build:
     if: github.event.pull_request.draft == false
-    runs-on: [ "ubuntu-18.04", "macos-latest", "ubuntu-latest", "ubuntu-20.04" ]
     strategy:
       fail-fast: false
       matrix:
@@ -26,6 +25,7 @@ jobs:
             python-version: "3.11"
           - os: "macos-latest"
             python-version: "3.11"
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
