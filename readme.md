@@ -1,6 +1,8 @@
 H264 Decoder Python Module
 ==========================
 
+![Master branch status](https://github.com/DaWelter/h264decoder/actions/workflows/python-package.yml/badge.svg?branch=master)
+
 The aim of this project is to provide a simple decoder for video
 captured by a Raspberry Pi camera. At the time of this writing I only
 need H264 decoding, since a H264 stream is what the RPi software 
@@ -8,7 +10,7 @@ delivers. Furthermore flexibility to incorporate the decoder in larger
 python programs in various ways is desirable.
 
 The code might also serve as example for libav and pybind11 usage.
-
+/blob/CI/CD-improvements/.github/workflows/python-package.yml
 
 Examples
 --------
