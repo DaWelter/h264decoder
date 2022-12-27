@@ -52,7 +52,7 @@ def _feed_decoder(decoder, buffer, max_feed_length, do_flush):
         decoded_frames = decoder.decode(buffer)
     else:
         buffers = np.array_split(np.frombuffer(buffer,dtype=np.uint8), len(buffer)//max_feed_length)
-        decoded_frames = sum((decoder.decode(buffer.tobytes()) for buffer in buffers), start=[])
+        decoded_frames = sum((decoder.decode(buffer.tobytes()) for buffer in buffers), [])
     if do_flush:
         decoded_frames += decoder.flush()
     return decoded_frames
@@ -148,7 +148,10 @@ def test_multithreading():
         buffer = io.BytesIO(streamdata)
         decoder = h264decoder.H264Decoder()
         max_feed_size = 128
-        while (data_in := buffer.read(max_feed_size)):
+        while True:
+            data_in = buffer.read(max_feed_size)
+            if not data_in:
+                break
             framelist = decoder.decode(data_in)
             q.put_nowait((worker_id, framelist))
 
@@ -170,8 +173,8 @@ def test_multithreading():
     
     assert [*sorted(only_the_worker_ids)] != only_the_worker_ids, "Some degree of parallelism is expected. But it looks like one thread ran after the other."
 
-    frames1 = sum((x for w,x in items if w == 1), start=[])
-    frames2 = sum((x for w,x in items if w == 2), start=[])
+    frames1 = sum((x for w,x in items if w == 1), [])
+    frames2 = sum((x for w,x in items if w == 2), [])
 
     LATENCY_FRAMES=5
     assert len(expected_frames)-LATENCY_FRAMES <= len(frames1) <= len(expected_frames), f"Number of decoded frames: {len(frames1)} vs expected {len(expected_frames)}"

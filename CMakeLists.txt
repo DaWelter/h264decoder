@@ -42,7 +42,8 @@ else()
   FetchContent_Declare(
     pybind11
     GIT_REPOSITORY https://github.com/pybind/pybind11
-    GIT_TAG v2.5.0)
+    # Recent PyBind11 version is required for Python 3.11 support.
+    GIT_TAG v2.10.2)
   FetchContent_MakeAvailable(pybind11)
 endif()
 
