@@ -52,7 +52,7 @@ def _feed_decoder(decoder, buffer, max_feed_length, do_flush):
         decoded_frames = decoder.decode(buffer)
     else:
         buffers = np.array_split(np.frombuffer(buffer,dtype=np.uint8), len(buffer)//max_feed_length)
-        decoded_frames = sum((decoder.decode(buffer.tobytes()) for buffer in buffers), start=[])
+        decoded_frames = sum((decoder.decode(buffer.tobytes()) for buffer in buffers), [])
     if do_flush:
         decoded_frames += decoder.flush()
     return decoded_frames
