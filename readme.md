@@ -9,6 +9,8 @@ python programs in various ways is desirable.
 
 The code might also serve as example for libav and pybind11 usage.
 
+Master branch status: ![Master branch status](https://github.com/github/docs/actions/workflows/main.yml/badge.svg?branch=master)
+
 
 Examples
 --------
