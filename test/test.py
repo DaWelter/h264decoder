@@ -149,7 +149,7 @@ def test_multithreading():
         decoder = h264decoder.H264Decoder()
         max_feed_size = 128
         while True:
-            data_in := buffer.read(max_feed_size)
+            data_in = buffer.read(max_feed_size)
             if not data_in:
                 break
             framelist = decoder.decode(data_in)
