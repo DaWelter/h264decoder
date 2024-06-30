@@ -57,7 +57,7 @@ jobs:
       if: ${{ contains(matrix.os,'ubuntu') && matrix.use-ffmpeg }}
       run: |
         sudo apt-get update -y
-        sudo apt-get install -y ffmpeg
+        sudo apt-get install -y libavcodec-dev libavutil-dev libswscale-dev
 
     - name: Install ffmpeg on OS X
       if: ${{ contains(matrix.os,'macos') && !matrix.use-ffmpeg }}
