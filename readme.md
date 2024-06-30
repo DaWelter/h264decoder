@@ -10,7 +10,6 @@ delivers. Furthermore flexibility to incorporate the decoder in larger
 python programs in various ways is desirable.
 
 The code might also serve as example for libav and pybind11 usage.
-/blob/CI/CD-improvements/.github/workflows/python-package.yml
 
 Examples
 --------
