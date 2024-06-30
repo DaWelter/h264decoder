@@ -19,19 +19,14 @@ jobs:
         include:
           - os: "ubuntu-20.04"
             python-version: "3.8"
-            use-ffmpeg: false
           - os: "ubuntu-22.04"
             python-version: "3.12"
-            use-ffmpeg: false
           - os: "ubuntu-24.04"
             python-version: "3.12"
-            use-ffmpeg: true
           - os: "macos-12"
             python-version: "3.11"
-            use-ffmpeg: true
           - os: "macos-14"
             python-version: "3.12"
-            use-ffmpeg: true
     runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/checkout@v3
@@ -47,20 +42,14 @@ jobs:
         python -m pip install flake8 pytest
         python -m pip install -r requirements.txt
         
-    - name: Install libavutil on Ubuntu
-      if: ${{ contains(matrix.os,'ubuntu') && !matrix.use-ffmpeg }}
-      run: |
-        sudo apt-get update -y
-        sudo apt-get install -y libavcodec-dev libavutil-dev libswscale-dev
-
     - name: Install ffmpeg on Ubuntu
-      if: ${{ contains(matrix.os,'ubuntu') && matrix.use-ffmpeg }}
+      if: ${{ contains(matrix.os,'ubuntu') }}
       run: |
         sudo apt-get update -y
         sudo apt-get install -y libavcodec-dev libavutil-dev libswscale-dev
 
     - name: Install ffmpeg on OS X
-      if: ${{ contains(matrix.os,'macos') && !matrix.use-ffmpeg }}
+      if: ${{ contains(matrix.os,'macos') }}
       run: |
         brew update
         brew install ffmpeg cmake
